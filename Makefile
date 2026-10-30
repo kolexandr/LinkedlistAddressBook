@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Werror -Wall -Wextra
+CFLAGS := -Werror -Wall -Wextra -Iinclude
 
 target := addressbook
 src_files := main.c linkedlist.c
