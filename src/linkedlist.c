@@ -54,7 +54,7 @@ int load_address_book(char *path_name, struct linkedlist **head){ // check the f
         perror("Error:");
         return -1;
     }
-    char name[50], surname[50], email[50], phone_number[50];
+    char line[512];
 
     struct linkedlist **tail = head;
 
@@ -63,21 +63,45 @@ int load_address_book(char *path_name, struct linkedlist **head){ // check the f
         tail = &(*tail)->next;
     }
 
-    while (fscanf(file, "%49s %49s %49s %49s", name, surname, email, phone_number) == 4) {
+    while (fgets(line, sizeof(line), file) != NULL) {
 
-        struct linkedlist *address =
-            create_address(name, surname, email, phone_number);
-
-        if (address == NULL) {
+        struct linkedlist *address;
+        int status = parse_address(line, &address);
+        if (status == -1){
+            continue;
+        } else if (status == 1){
             fclose(file);
             return 1;
+        } else if (status == 0){
+            *tail = address;
+            tail = &address->next;
         }
-
-        *tail = address;
-        tail = &address->next;
     }
 
     fclose(file);
+
+    return 0;
+}
+
+int parse_address(char *line, struct linkedlist **address){
+    char *name = strtok(line, ",");
+    char *surname = strtok(NULL, ",");
+    char *email = strtok(NULL, ",");
+    char *phone_number = strtok(NULL, ",\n");
+
+    if (name == NULL || surname == NULL ||
+        email == NULL || phone_number == NULL) {
+
+        fprintf(stderr, "Error: invalid CSV record\n");
+        return -1;
+    }
+
+    struct linkedlist *new_address = create_address(name, surname, email, phone_number);
+    
+    if (new_address == NULL) {
+        return 1;
+    }
+    *address = new_address;
 
     return 0;
 }

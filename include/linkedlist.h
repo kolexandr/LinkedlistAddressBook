@@ -20,6 +20,8 @@ struct linkedlist *create_address(char *name, char *surname, char *email, char *
 
 int load_address_book(char *path_name, struct linkedlist **head);
 
+int parse_address(char *line, struct linkedlist **address);
+
 int add_new_address_end(struct linkedlist **head, struct linkedlist *address);
 
 int add_new_address_position(struct linkedlist **head, struct linkedlist *address, int position);
