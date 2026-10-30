@@ -16,7 +16,7 @@ void display_one_address(struct linkedlist *address){
 
 void display_addresses(struct linkedlist *head){
     if (head == NULL){ 
-        fprintf(stderr, "Error: the head is empty, unable to display addresses\n");
+        printf("The list is empty, nothing to show\n");
         return;
     }
     while(head != NULL){
@@ -26,7 +26,7 @@ void display_addresses(struct linkedlist *head){
 };
 
 struct linkedlist *create_address(char *name, char *surname, char *email, char *phone_number){
-    if ((strlen(name) > MAX_STRING) | (strlen(surname) > MAX_STRING) | (strlen(email) > MAX_STRING) | (strlen(phone_number) > MAX_STRING)){
+    if ((strlen(name) > MAX_STRING) || (strlen(surname) > MAX_STRING) || (strlen(email) > MAX_STRING) || (strlen(phone_number) > MAX_STRING)){
         fprintf(stderr, "The total size exceeds limit\n");
         return NULL;
     }
@@ -35,7 +35,7 @@ struct linkedlist *create_address(char *name, char *surname, char *email, char *
 
     if (address == NULL){
         fprintf(stderr, "Unable ot allocate memory for the linkedlist\n");
-        return NULL; // handle it
+        return NULL;
     }
 
     strcpy(address->name, name);
@@ -47,14 +47,13 @@ struct linkedlist *create_address(char *name, char *surname, char *email, char *
     return address;
 }
 
-int load_address_book(char *path_name, struct linkedlist **head){
+int load_address_book(char *path_name, struct linkedlist **head){ // check the file and remove delimeters
     FILE *file = fopen(path_name, "r");
 
     if (file == NULL) {
         perror("Error:");
         return -1;
     }
-
     char name[50], surname[50], email[50], phone_number[50];
 
     struct linkedlist **tail = head;
@@ -89,13 +88,13 @@ int add_new_address_end(struct linkedlist **head, struct linkedlist *address){
         return 1;
     }
 
-    struct linkedlist *temp = *head;
     
-    if ((temp == NULL) && (address != NULL)){
-        temp = address;
+    if ((*head == NULL)){
+        *head = address;
         return 0;
     }
     
+    struct linkedlist *temp = *head;
     while(temp->next != NULL){
         temp = temp->next;
     }
@@ -106,7 +105,7 @@ int add_new_address_end(struct linkedlist **head, struct linkedlist *address){
 }
 
 int add_new_address_position(struct linkedlist **head, struct linkedlist *address, int position){
-    if ((address == NULL) | (position < 0)){
+    if ((*head == NULL) || (address == NULL) || (position < 0)){
         fprintf(stderr, "Error: null values passed\n");
         return 1;
     }
@@ -119,17 +118,17 @@ int add_new_address_position(struct linkedlist **head, struct linkedlist *addres
 
     struct linkedlist *temp = *head;
 
-    // we find the position, insert the address by changing the head next pointer to the address and address pointer is pointing to the head->next->next now  
     for(int i=0; i<position; i++){
-        if (temp->next == NULL){
-            fprintf(stderr, "Error: position exceeds the list length\n");
-            return 1;
-        }
 
         if (i+1 == position){
             address->next = temp->next;
             temp->next = address;
             return 0;
+        }
+
+        if (temp->next == NULL){
+            fprintf(stderr, "Error: position exceeds the list length\n");
+            return 1;
         }
 
         temp = temp->next;
@@ -138,8 +137,8 @@ int add_new_address_position(struct linkedlist **head, struct linkedlist *addres
     return 1;
 }
 
-int delete_address_position(struct linkedlist **head, int position){ // FIX the last member is not removed 
-    if ((*head == NULL) | (position < 0)){
+int delete_address_position(struct linkedlist **head, int position){ 
+    if ((*head == NULL) || (position < 0)){
         fprintf(stderr, "Error: null values passed\n");
         return 1;
     }
@@ -168,10 +167,10 @@ int delete_address_position(struct linkedlist **head, int position){ // FIX the 
         temp = temp->next;
     }
 
-    if (temp->next->next != NULL){
-        temp->next = temp->next->next;
-    }
+    temp->next = temp->next->next;
+    
     free(address_to_delete);
+    address_to_delete = NULL;
 
     return 0;
 }
@@ -192,22 +191,39 @@ int delete_address_book(struct linkedlist **head){
     return 0;
 }
 
-// int find_address_position(struct linkedlist *head, int position){
-    
-//     if ((head == NULL) | (position < 0)){
-//         fprintf(stderr, "Error: null values passed\n");
-//         return 1;
-//     }
+struct linkedlist *find_address_position(struct linkedlist *head, int position){
 
-//     struct linkedlist *address_to_find;
+    if ((head == NULL) || (position < 0)){
+        fprintf(stderr, "Error: null values passed\n");
+        return NULL;
+    }
 
-//     if (position == 0){
-        
-//     }
 
-//     return 0;
-// }
+    for(int i=0; i< position; i++){
+        if (head == NULL){
+            return NULL;
+        }
+        head = head->next;
+    }
 
-// int find_address_feature(struct linkedlist *head, struct linkedlist *address, int position){
-//     return 0;
-// }
+    return head;
+}
+
+struct linkedlist *find_address_feature(struct linkedlist *head, char *feature){
+    if ((head == NULL)){
+        fprintf(stderr, "Error: empty address book passed\n");
+        return NULL;
+    }
+
+    struct linkedlist *address_to_find;
+
+    while(head != NULL){
+        if(strcmp(feature, head->name) == 0 || strcmp(feature, head->surname) == 0 || strcmp(feature, head->email) == 0 || strcmp(feature, head->phone_number) == 0){
+            address_to_find = head;
+            return address_to_find;
+        }
+        head = head->next;
+    }
+
+    return NULL;
+}

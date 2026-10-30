@@ -2,7 +2,7 @@ CC := gcc
 CFLAGS := -Werror -Wall -Wextra -Iinclude
 
 target := addressbook
-src_files := main.c linkedlist.c
+src_files := main.c linkedlist.c utils.c
 obj_files := $(src_files:%.c=build/%.o)
 
 .PHONY: all clean

@@ -2,6 +2,7 @@
 #define LINKEDLIST
 
 #define MAX_STRING 50
+#define FILE_SIZE 512
 
 struct linkedlist{
     char name[MAX_STRING];
@@ -10,6 +11,8 @@ struct linkedlist{
     char phone_number[MAX_STRING];
     struct linkedlist *next;
 };
+
+void display_one_address(struct linkedlist *address);
 
 void display_addresses(struct linkedlist *head);
 
@@ -25,8 +28,8 @@ int delete_address_position(struct linkedlist **head, int position);
 
 int delete_address_book(struct linkedlist **head);
 
-int find_address_position(struct linkedlist *head, int position);
+struct linkedlist *find_address_position(struct linkedlist *head, int position);
 
-int find_address_feature(struct linkedlist *head, struct linkedlist *address, int position);
+struct linkedlist *find_address_feature(struct linkedlist *head, char *feature);
 
 #endif
