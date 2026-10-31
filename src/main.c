@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "linkedlist.h"
 #include "utils.h"
 
-// TODO csv should have commas, change it
 
-void display_options(int *choice){
+int display_options(int *choice){
     printf("\n---ADDRESS BOOK MENU---\n");
     printf("Enter 1 for displaying current list of addresses\n");
     printf("Enter 2 for loading the addresses from the file (default is ~home/ directory)\n");
@@ -15,27 +15,56 @@ void display_options(int *choice){
     printf("Enter 5 for deleting the address on the specific position\n");
     printf("Enter 6 for deleting the whole address book\n");
     printf("Enter 7 for finding the address on the specific position\n");
-    printf("Enter 8 for finding the address by the feature (name, surname, email, phone)\n\n");
+    printf("Enter 8 for finding the address by the feature (name, surname, email, phone)\n");
+    printf("Enter 0 for exit\n\n");
 
     printf("Enter the desired option: ");
-    read_int(choice);
+    if (read_int(choice) != 0){
+        return 1;
+    }
+    return 0;
+}
+
+void wait_for_enter(void){
+    printf("\n--Press Enter to continue--");
+    fflush(stdout);
+
+    int ch;
+
+    while((ch = getchar()) != '\n' && ch != EOF);
+}
+
+void cleanup_memory(struct linkedlist *head){
+    if (head != NULL){
+        if (delete_address_book(&head) == 0){
+            printf("Memory unloaded successfully\n");
+        }
+    }
 }
 
 struct linkedlist *handle_create_address(void){
     char name[MAX_STRING], surname[MAX_STRING], email[MAX_STRING], phone_number[MAX_STRING];
 
     printf("Enter the the name for the address: ");
-    if (read_string(name, MAX_STRING) != 0)
+    if (read_string(name, MAX_STRING) != 0){
+        fprintf(stderr, "Error: invalid text was entered\n");
         return NULL;
+    }
     printf("Enter the the surname for the address: ");
-    if (read_string(surname, MAX_STRING) != 0)
+    if (read_string(surname, MAX_STRING) != 0){
+        fprintf(stderr, "Error: invalid text was entered\n");
         return NULL;
+    }
     printf("Enter the the email for the address: ");
-    if (read_string(email, MAX_STRING) != 0)
+    if (read_string(email, MAX_STRING) != 0){
+        fprintf(stderr, "Error: invalid text was entered\n");
         return NULL;
+    }
     printf("Enter the the phone number for the address: ");
-    if (read_string(phone_number, MAX_STRING) != 0)
+    if (read_string(phone_number, MAX_STRING) != 0){
+        fprintf(stderr, "Error: invalid text was entered\n");
         return NULL;
+    }
     printf("\n");
 
     struct linkedlist *address = NULL;
@@ -59,7 +88,7 @@ void handle_deleting_address_position(struct linkedlist **head, int *position){
         fprintf(stderr, "Error: the address deletion failed\n");
         return;
     }
-    printf("The address was deleted successfully!");
+    printf("The address was deleted successfully!\n");
 }
 
 void handle_deleting_address_book(struct linkedlist **head){
@@ -130,7 +159,7 @@ void handle_find_address_position(struct linkedlist *head, int *position){
         return;
     }
     struct linkedlist *address_to_find;
-    if ((address_to_find=find_address_position(head, *position)) == NULL){ // TODO check position pointer for others
+    if ((address_to_find=find_address_position(head, *position)) == NULL){ 
         fprintf(stderr, "Error: unable to find the address in the list\n");
         return;
     }
@@ -145,7 +174,7 @@ void handle_find_address_feature(struct linkedlist *head, char *feature){
     }
     printf("Please enter the feature to find the address: ");
     if (read_string(feature, MAX_STRING) != 0){
-        fprintf(stderr, "Error: invalid string was entered\n");
+        fprintf(stderr, "Error: invalid text was entered\n");
         return;
     }
     struct linkedlist *address_to_find;
@@ -158,14 +187,16 @@ void handle_find_address_feature(struct linkedlist *head, char *feature){
 }
 
 int main(void){
-
     char path[512];
     int choice, position;
     char feature[MAX_STRING];
     struct linkedlist *head = NULL;
 
     while (1){
-        display_options(&choice);
+        if (display_options(&choice) != 0){
+            printf("Please try again\n");
+            continue;
+        }
 
         switch(choice){
             case 1:
@@ -192,10 +223,14 @@ int main(void){
             case 8:
                 handle_find_address_feature(head, feature);
                 break;
+            case 0:
+                cleanup_memory(head);
+                exit(0);
             default:
                 printf("Invalid input, try again\n");
                 break;
         }
+        wait_for_enter();
     }
     
 

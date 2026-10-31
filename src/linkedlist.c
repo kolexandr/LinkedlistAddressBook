@@ -26,7 +26,7 @@ void display_addresses(struct linkedlist *head){
 };
 
 struct linkedlist *create_address(char *name, char *surname, char *email, char *phone_number){
-    if ((strlen(name) > MAX_STRING) || (strlen(surname) > MAX_STRING) || (strlen(email) > MAX_STRING) || (strlen(phone_number) > MAX_STRING)){
+    if ((strlen(name) >= MAX_STRING) || (strlen(surname) >= MAX_STRING) || (strlen(email) >= MAX_STRING) || (strlen(phone_number) >= MAX_STRING)){
         fprintf(stderr, "The total size exceeds limit\n");
         return NULL;
     }
@@ -45,42 +45,6 @@ struct linkedlist *create_address(char *name, char *surname, char *email, char *
     address->next = NULL;
 
     return address;
-}
-
-int load_address_book(char *path_name, struct linkedlist **head){ // check the file and remove delimeters
-    FILE *file = fopen(path_name, "r");
-
-    if (file == NULL) {
-        perror("Error:");
-        return -1;
-    }
-    char line[512];
-
-    struct linkedlist **tail = head;
-
-    // find the position where the next node should be inserted
-    while (*tail != NULL) {
-        tail = &(*tail)->next;
-    }
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-
-        struct linkedlist *address;
-        int status = parse_address(line, &address);
-        if (status == -1){
-            continue;
-        } else if (status == 1){
-            fclose(file);
-            return 1;
-        } else if (status == 0){
-            *tail = address;
-            tail = &address->next;
-        }
-    }
-
-    fclose(file);
-
-    return 0;
 }
 
 int parse_address(char *line, struct linkedlist **address){
@@ -102,6 +66,41 @@ int parse_address(char *line, struct linkedlist **address){
         return 1;
     }
     *address = new_address;
+
+    return 0;
+}
+
+int load_address_book(char *path_name, struct linkedlist **head){ 
+    FILE *file = fopen(path_name, "r");
+
+    if (file == NULL) {
+        perror("Error:");
+        return -1;
+    }
+    char line[512];
+
+    struct linkedlist **tail = head;
+
+    while (*tail != NULL) {
+        tail = &(*tail)->next;
+    }
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+
+        struct linkedlist *address;
+        int status = parse_address(line, &address);
+        if (status == -1){
+            continue;
+        } else if (status == 1){
+            fclose(file);
+            return 1;
+        } else if (status == 0){
+            *tail = address;
+            tail = &address->next;
+        }
+    }
+
+    fclose(file);
 
     return 0;
 }
@@ -201,7 +200,7 @@ int delete_address_position(struct linkedlist **head, int position){
 
 int delete_address_book(struct linkedlist **head){
     if (*head == NULL){
-        fprintf(stderr, "Error: unable to delete the emply list");
+        fprintf(stderr, "Error: unable to delete the emply list\n");
         return 1;
     }
 
