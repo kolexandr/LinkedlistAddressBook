@@ -12,7 +12,7 @@ void discard_line(void){
     while((ch = getchar()) != '\n' && ch != EOF);
 }
 
-int read_string(char *buffer, size_t size) {
+int read_line(char *buffer, size_t size) {
 
     if (size < 2 || size > INT_MAX){
         return 1;
@@ -23,12 +23,7 @@ int read_string(char *buffer, size_t size) {
     }
 
 
-    char *newline;
-    newline = strchr(buffer, '\n');
-    buffer[strcspn(buffer, "\n")] = '\0';
-    if (buffer[0] == '\0') return 1;
-
-
+    char *newline = strchr(buffer, '\n');
     if (newline != NULL){
         *newline = '\0';
     } else {
@@ -43,7 +38,19 @@ int read_string(char *buffer, size_t size) {
         }
     }
 
-    for (int i = 0; buffer[i] != '\0'; i++){
+    return 0;
+}
+
+int read_string(char *buffer, size_t size) {
+    if (read_line(buffer, size) != 0){
+        return 1;
+    }
+
+    if (buffer[0] == '\0'){
+        return 1;
+    }
+
+    for (size_t i = 0; buffer[i] != '\0'; i++){
         if (isspace((unsigned char) buffer[i])){
             return 1;
         }
@@ -57,7 +64,7 @@ int read_int(int *value) {
     char buffer[100];
 
 
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL){
+    if (read_line(buffer, sizeof(buffer)) != 0){
         return 1;
     }
 
