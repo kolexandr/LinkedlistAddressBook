@@ -1,5 +1,5 @@
-#ifndef UTILS
-#define UTILS
+#ifndef INPUT_UTILS
+#define INPUT_UTILS
 
 #include <stddef.h>
 

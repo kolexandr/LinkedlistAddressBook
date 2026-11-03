@@ -1,10 +1,10 @@
-#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
 #include <errno.h>
+#include "input_utils.h"
 
 void discard_line(void){
     int ch;
